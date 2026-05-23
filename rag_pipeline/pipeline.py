@@ -3,13 +3,12 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-import lancedb
 from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import LanceDB
+from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_groq import ChatGroq
+from langchain_huggingface import HuggingFaceEmbeddings
 
 load_dotenv()
 
@@ -53,8 +52,7 @@ DOCUMENTS = [
     ),
 ]
 
-_LANCEDB_PATH = str(Path(__file__).parent.parent / "lancedb_store")
-_TABLE_NAME = "docs"
+_FAISS_PATH = Path(__file__).parent.parent / "faiss_store"
 _EMBED_MODEL = "all-MiniLM-L6-v2"
 
 
@@ -62,44 +60,30 @@ def _get_embeddings() -> HuggingFaceEmbeddings:
     return HuggingFaceEmbeddings(model_name=_EMBED_MODEL)
 
 
-def _build_vectorstore() -> LanceDB:
+def _build_vectorstore() -> FAISS:
     embeddings = _get_embeddings()
     splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=50)
     chunks = splitter.split_documents(DOCUMENTS)
-
-    db = lancedb.connect(_LANCEDB_PATH)
-
-    # Drop stale table so rebuild is always clean
-    if _TABLE_NAME in db.list_tables():
-        db.drop_table(_TABLE_NAME)
-
-    # Pass the connection object + table name — LanceDB creates the table internally
-    return LanceDB.from_documents(
-        chunks,
-        embeddings,
-        connection=db,
-        table_name=_TABLE_NAME,
-    )
+    store = FAISS.from_documents(chunks, embeddings)
+    store.save_local(str(_FAISS_PATH))
+    return store
 
 
-def _load_vectorstore() -> LanceDB:
-    embeddings = _get_embeddings()
-    db = lancedb.connect(_LANCEDB_PATH)
-    return LanceDB(
-        connection=db,
-        embedding=embeddings,
-        table_name=_TABLE_NAME,
+def _load_vectorstore() -> FAISS:
+    return FAISS.load_local(
+        str(_FAISS_PATH),
+        _get_embeddings(),
+        allow_dangerous_deserialization=True,  # safe: we wrote this index ourselves
     )
 
 
 class RAGPipeline:
     """Minimal RAG pipeline. This is the system under test."""
+    
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
+    
     def __init__(self, rebuild: bool = False) -> None:
-        db = lancedb.connect(_LANCEDB_PATH)
-        needs_build = rebuild or (_TABLE_NAME not in db.list_tables())
-
+        needs_build = rebuild or not _FAISS_PATH.exists()
         self._store = _build_vectorstore() if needs_build else _load_vectorstore()
 
         self._llm = ChatGroq(

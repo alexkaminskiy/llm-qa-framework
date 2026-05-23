@@ -2,9 +2,9 @@ name: LLM Eval Regression
 
 on:
   push:
-    branches: [main]
+    branches: [develop]
   pull_request:
-    branches: [main]
+    branches: [develop]
   schedule:
     - cron: "0 6 * * *"   # nightly at 06:00 UTC
 
@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
 
       - name: Install dependencies
@@ -28,11 +28,22 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
-          pytest evaluations/ -v --tb=short
+          pytest evaluations/ -v --tb=short \
+            --junit-xml=reports/results.xml \
+            --html=reports/report.html \
+            --self-contained-html
 
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: eval-results-${{ github.run_id }}
-          path: .deepeval/
+          path: reports/
+      - name: Deploy report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports
+          destination_dir: .  # publishes to root of gh-pages branch
+          keep_files: false
