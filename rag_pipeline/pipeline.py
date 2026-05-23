@@ -61,6 +61,11 @@ _EMBED_MODEL = "all-MiniLM-L6-v2"
 def _get_embeddings() -> HuggingFaceEmbeddings:
     return HuggingFaceEmbeddings(model_name=_EMBED_MODEL)
 
+def _get_table_names(db) -> list[str]:
+    """Compatibility shim: list_tables() was added after 0.3.6."""
+    if hasattr(db, "list_tables"):
+        return db.list_tables()
+    return db.table_names()  # noqa: deprecated but present in <=0.3.6
 
 def _build_vectorstore() -> LanceDB:
     embeddings = _get_embeddings()
@@ -70,7 +75,7 @@ def _build_vectorstore() -> LanceDB:
     db = lancedb.connect(_LANCEDB_PATH)
 
     # Drop stale table so rebuild is always clean
-    if _TABLE_NAME in db.list_tables():
+    if _TABLE_NAME in _get_table_names(db):
         db.drop_table(_TABLE_NAME)
 
     # Pass the connection object + table name — LanceDB creates the table internally
@@ -98,7 +103,7 @@ class RAGPipeline:
 
     def __init__(self, rebuild: bool = False) -> None:
         db = lancedb.connect(_LANCEDB_PATH)
-        needs_build = rebuild or (_TABLE_NAME not in db.list_tables())
+        needs_build = rebuild or (_TABLE_NAME not in _get_table_names(db))
 
         self._store = _build_vectorstore() if needs_build else _load_vectorstore()
 
