@@ -2,5 +2,5 @@
 .env
 __pycache__/
 .pytest_cache/
-lancedb_store/
+faiss_store/
 .deepeval
