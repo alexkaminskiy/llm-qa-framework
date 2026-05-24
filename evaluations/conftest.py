@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from rag_pipeline.pipeline import RAGPipeline
+from langchain_groq import ChatGroq
 
 load_dotenv()
 
@@ -21,13 +22,11 @@ load_dotenv()
 # offline DummyJudge to allow tests to run in air-gapped or CI-less environments.
 _GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 _HAS_GROQ = False
-if _GROQ_API_KEY:
-    try:
-        from langchain_groq import ChatGroq
 
-        _HAS_GROQ = True
-    except Exception:
-        _HAS_GROQ = False
+if _GROQ_API_KEY:
+    _HAS_GROQ = True
+else:
+    _HAS_GROQ = False
 
 GOLD_STANDARD_PATH = Path(__file__).parent.parent / "datasets" / "gold_standard.json"
 

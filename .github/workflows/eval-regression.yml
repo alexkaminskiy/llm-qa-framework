@@ -7,6 +7,17 @@ on:
     branches: [develop]
   # schedule:
   #   - cron: "0 6 * * *"   # nightly at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      update_baseline:
+        description: "Capture new baseline and commit it"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+permissions:
+  contents: write
 
 jobs:
   evaluate:
@@ -23,6 +34,21 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+      
+      - name: Capture new baseline
+        if: github.event.inputs.update_baseline == 'true'
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python scripts/capture_baseline.py
+      
+      - name: Commit updated baseline
+        if: github.event.inputs.update_baseline == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add baselines/baseline.json
+          git diff --staged --quiet || git commit -m "chore: update eval baseline [skip ci]"
+          git push
 
       - name: Run LLM evaluation suite
         env:
@@ -39,6 +65,7 @@ jobs:
         with:
           name: eval-results-${{ github.run_id }}
           path: reports/
+          
       - name: Deploy report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
