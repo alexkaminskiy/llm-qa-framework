@@ -16,10 +16,12 @@ class GroqJudge(DeepEvalBaseLLM):
         return self._client
 
     def generate(self, prompt: str) -> str:
-        return self._client.invoke(prompt).content
+        response = self._client.invoke(prompt)
+        return response.content
 
     async def a_generate(self, prompt: str) -> str:
-        return (await self._client.ainvoke(prompt)).content
+        response = await self._client.ainvoke(prompt)
+        return response.content
 
     def get_model_name(self) -> str:
         return "groq/llama-3.3-70b-versatile"

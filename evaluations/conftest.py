@@ -84,20 +84,20 @@ GOLD_STANDARD_PATH = Path(__file__).parent.parent / "datasets" / "gold_standard.
 # Session-scoped fixtures — build RAG pipeline once per test run
 # ---------------------------------------------------------------------------
 
-@pytest.fixture(scope="session")
-def groq_llm() -> ChatGroq:
-    return build_groq_llm()
+# @pytest.fixture(scope="session")
+# def groq_llm() -> ChatGroq:
+#     llm = build_groq_llm()
+#     return llm
 
 @pytest.fixture(scope="session")
 def rag_pipeline() -> RAGPipeline:
     return RAGPipeline(rebuild=False)
 
 
-# @pytest.fixture(scope="session")
-# def judge() -> DeepEvalBaseLLM:
-#     if _HAS_GROQ:
-#         return GroqJudge()
-#     return DummyJudge()
+@pytest.fixture(scope="session")
+def judge() -> DeepEvalBaseLLM:
+    return GroqJudge(build_groq_llm())
+
 
 
 @pytest.fixture(scope="session")
