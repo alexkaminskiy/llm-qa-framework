@@ -11,7 +11,7 @@ on:
     inputs:
       update_baseline:
         description: "Capture new baseline and commit it"
-        required: "true"
+        required: true
         default: "false"
         type: choice
         options: ["false", "true"]
