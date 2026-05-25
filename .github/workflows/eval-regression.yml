@@ -54,7 +54,7 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
-          pytest evaluations/ -v --tb=short \
+          pytest -v --tb=short \
             --junit-xml=reports/results.xml \
             --html=reports/report.html \
             --self-contained-html

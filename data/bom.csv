@@ -1,0 +1,9 @@
+part_number,description,unit_cost,quantity,supplier_id,category,classification
+AV-100001,F-35 Radar Module,142500.00,4,SUP-001,Electronics,CUI
+AV-100002,Airframe Composite Panel,28750.00,12,SUP-002,Mechanical,UNCLASSIFIED
+AV-100003,Flight Control Software v3.1,95000.00,1,SUP-003,Software,SECRET
+AV-100004,Titanium Fastener Set,340.00,500,SUP-002,Materials,UNCLASSIFIED
+AV-100005,EW Jamming Pod,310000.00,2,SUP-004,Electronics,SECRET
+AV-100006,Hydraulic Actuator Assembly,18200.00,8,SUP-001,Mechanical,CUI
+AV-100007,Encrypted Comms Module,67500.00,6,SUP-004,Electronics,SECRET
+AV-100008,Carbon Fibre Wing Skin,41000.00,16,SUP-002,Materials,UNCLASSIFIED
