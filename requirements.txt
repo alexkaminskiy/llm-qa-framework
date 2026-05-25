@@ -11,6 +11,8 @@ faiss-cpu==1.8.0
 sentence-transformers==3.0.1
 
 # Testing
+pandas==3.0.3
+great-expectations==0.18.15
 pytest==8.3.2
 pytest-html==4.1.1
 pytest-asyncio==0.23.8

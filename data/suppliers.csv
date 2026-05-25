@@ -1,0 +1,5 @@
+supplier_id,name,country,risk_score,on_time_delivery_rate,certified,last_audit_year
+SUP-001,Lockheed Advanced Systems,US,12.5,0.97,true,2024
+SUP-002,BAE Structural Components,GB,18.0,0.94,true,2024
+SUP-003,Raytheon Software Division,US,9.5,0.99,true,2025
+SUP-004,L3Harris Electronic Systems,US,14.0,0.96,true,2024
