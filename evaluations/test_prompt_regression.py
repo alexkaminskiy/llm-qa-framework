@@ -22,6 +22,7 @@ import pytest
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric
 from deepeval.test_case import LLMTestCase
 
+pytestmark = pytest.mark.requirement("SYS-REQ-004")
 BASELINE_PATH = Path(__file__).parent.parent / "baselines" / "baseline.json"
 GOLD_STANDARD_PATH = Path(__file__).parent.parent / "datasets" / "gold_standard.json"
 

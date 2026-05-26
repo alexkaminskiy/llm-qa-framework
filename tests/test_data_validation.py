@@ -51,6 +51,7 @@ def db_connection(db_path):
 # Layer 1: CSV / pandas validation
 # ---------------------------------------------------------------------------
 
+@pytest.mark.requirement("SYS-REQ-005")
 def test_bom_schema_and_business_rules(bom_df, gx_context) -> None:
     validator = build_bom_suite(bom_df, gx_context)
     checkpoint = gx_context.add_or_update_checkpoint(
@@ -60,7 +61,7 @@ def test_bom_schema_and_business_rules(bom_df, gx_context) -> None:
     result = checkpoint.run()
     assert result.success, f"BOM validation failed.\n{_format_failures(result)}"
 
-
+@pytest.mark.requirement("SYS-REQ-006")
 def test_supplier_schema_and_business_rules(suppliers_df, gx_context) -> None:
     validator = build_supplier_suite(suppliers_df, gx_context)
     checkpoint = gx_context.add_or_update_checkpoint(
@@ -75,6 +76,7 @@ def test_supplier_schema_and_business_rules(suppliers_df, gx_context) -> None:
 # Layer 2: SQL validation
 # ---------------------------------------------------------------------------
 
+@pytest.mark.requirement("SYS-REQ-007")
 def test_bom_supplier_referential_integrity(db_path, db_connection) -> None:
     query = """
         SELECT b.part_number, b.supplier_id
@@ -92,7 +94,7 @@ def test_bom_supplier_referential_integrity(db_path, db_connection) -> None:
         f"reference non-existent suppliers:\n{orphaned.to_string()}"
     )
 
-
+@pytest.mark.requirement("SYS-REQ-013")
 def test_high_risk_suppliers_not_sole_sourced(db_path, db_connection) -> None:
     query = """
         SELECT
@@ -115,7 +117,7 @@ def test_high_risk_suppliers_not_sole_sourced(db_path, db_connection) -> None:
         f"from high-risk suppliers:\n{violations.to_string()}"
     )
 
-
+@pytest.mark.requirement("SYS-REQ-011")
 def test_total_bom_value_within_expected_range(db_path, db_connection) -> None:
     query = """
         SELECT SUM(unit_cost * quantity) AS total_bom_value
@@ -131,7 +133,7 @@ def test_total_bom_value_within_expected_range(db_path, db_connection) -> None:
         f"Possible data corruption."
     )
 
-
+@pytest.mark.requirement("SYS-REQ-012")
 def test_all_suppliers_have_recent_audit(db_path, db_connection) -> None:
     query = """
         SELECT supplier_id, name, last_audit_year
@@ -151,6 +153,7 @@ def test_all_suppliers_have_recent_audit(db_path, db_connection) -> None:
 # Layer 3: Cross-dataset consistency
 # ---------------------------------------------------------------------------
 
+@pytest.mark.requirement("SYS-REQ-008")
 def test_no_secret_parts_from_non_us_suppliers(bom_df, suppliers_df) -> None:
     merged = bom_df.merge(suppliers_df, on="supplier_id", how="left")
     violations = merged[

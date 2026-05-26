@@ -14,6 +14,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.requirement("SYS-REQ-003")
+
 _GOLD = json.loads(
     (Path(__file__).parent.parent / "datasets" / "gold_standard.json").read_text()
 )
