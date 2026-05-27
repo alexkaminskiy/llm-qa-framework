@@ -21,13 +21,13 @@ load_dotenv()
 
 # Prefer Groq judge when API key is available; otherwise use a deterministic
 # offline DummyJudge to allow tests to run in air-gapped or CI-less environments.
-_GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-_HAS_GROQ = False
+# _GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# _HAS_GROQ = False
 
-if _GROQ_API_KEY:
-    _HAS_GROQ = True
-else:
-    _HAS_GROQ = False
+# if _GROQ_API_KEY:
+#     _HAS_GROQ = True
+# else:
+#     _HAS_GROQ = False
 
 GOLD_STANDARD_PATH = Path(__file__).parent.parent / "datasets" / "gold_standard.json"
 

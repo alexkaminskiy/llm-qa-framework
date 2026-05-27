@@ -7,8 +7,10 @@ from deepeval import assert_test
 from deepeval.metrics import FaithfulnessMetric
 from deepeval.test_case import LLMTestCase
 
+pytestmark = pytest.mark.requirement("SYS-REQ-001")
 
-FAITHFULNESS_THRESHOLD = 0.80
+
+FAITHFULNESS_THRESHOLD = 0.90
 
 
 @pytest.mark.parametrize("sample", [

@@ -17,6 +17,11 @@ import pytest
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 
+pytestmark = [
+    pytest.mark.requirement("SYS-REQ-009"),
+    pytest.mark.requirement("SYS-REQ-010"),
+]
+
 FAISS_PATH = Path(__file__).parent.parent / "faiss_store"
 EMBED_MODEL = "all-MiniLM-L6-v2"
 EXPECTED_DIMENSIONS = 384       # all-MiniLM-L6-v2 output size

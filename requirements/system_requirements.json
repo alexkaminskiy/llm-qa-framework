@@ -1,0 +1,93 @@
+{
+  "SYS-REQ-001": {
+    "id": "SYS-REQ-001",
+    "title": "RAG Output Faithfulness",
+    "description": "The system shall generate answers where ≥ 80% of claims are supported by retrieved context, as measured by FaithfulnessMetric.",
+    "category": "AI Quality",
+    "priority": "Critical"
+  },
+  "SYS-REQ-002": {
+    "id": "SYS-REQ-002",
+    "title": "RAG Answer Relevance",
+    "description": "Generated answers shall directly address the question asked, achieving AnswerRelevancyMetric ≥ 0.75.",
+    "category": "AI Quality",
+    "priority": "Critical"
+  },
+  "SYS-REQ-003": {
+    "id": "SYS-REQ-003",
+    "title": "Out-of-Context Refusal",
+    "description": "When the document corpus contains no relevant information, the system shall acknowledge uncertainty rather than fabricate an answer.",
+    "category": "AI Safety",
+    "priority": "Critical"
+  },
+  "SYS-REQ-004": {
+    "id": "SYS-REQ-004",
+    "title": "Prompt Regression Prevention",
+    "description": "Quality metric scores shall not degrade more than 10% from the established baseline following any model, prompt, or corpus change.",
+    "category": "AI Quality",
+    "priority": "High"
+  },
+  "SYS-REQ-005": {
+    "id": "SYS-REQ-005",
+    "title": "BOM Schema and Business Rule Compliance",
+    "description": "Bill of Materials records shall conform to the defined schema: valid part number format, positive unit costs, recognised categories and classification codes.",
+    "category": "Data Integrity",
+    "priority": "Critical"
+  },
+  "SYS-REQ-006": {
+    "id": "SYS-REQ-006",
+    "title": "Supplier Data Validity",
+    "description": "Supplier records shall be complete and within valid ranges: risk score 0–100, on-time delivery rate 0.0–1.0, audit year within acceptable window.",
+    "category": "Data Integrity",
+    "priority": "High"
+  },
+  "SYS-REQ-007": {
+    "id": "SYS-REQ-007",
+    "title": "BOM–Supplier Referential Integrity",
+    "description": "Every supplier_id referenced in the BOM shall exist in the supplier register. Orphaned BOM records are not permitted.",
+    "category": "Data Integrity",
+    "priority": "Critical"
+  },
+  "SYS-REQ-008": {
+    "id": "SYS-REQ-008",
+    "title": "ITAR Export Control Compliance",
+    "description": "SECRET-classified components shall not be sourced from non-US suppliers. Any such data configuration shall be flagged as a compliance violation.",
+    "category": "Compliance",
+    "priority": "Critical"
+  },
+  "SYS-REQ-009": {
+    "id": "SYS-REQ-009",
+    "title": "Vector Index Dimensional Integrity",
+    "description": "The FAISS index dimensionality shall match the configured embedding model output dimension (384 for all-MiniLM-L6-v2). A mismatch shall fail validation.",
+    "category": "System Integrity",
+    "priority": "Critical"
+  },
+  "SYS-REQ-010": {
+    "id": "SYS-REQ-010",
+    "title": "Retrieval Accuracy",
+    "description": "Known queries shall retrieve chunks from the correct source document as the top result. Out-of-domain queries shall return similarity scores indicating low relevance.",
+    "category": "System Integrity",
+    "priority": "High"
+  },
+  "SYS-REQ-011": {
+    "id": "SYS-REQ-011",
+    "title": "BOM Value Plausibility",
+    "description": "The aggregate Bill of Materials value shall fall within the expected programme budget range ($100,000–$100,000,000). Values outside this range indicate data corruption.",
+    "category": "Data Integrity",
+    "priority": "High"
+  },
+  "SYS-REQ-012": {
+    "id": "SYS-REQ-012",
+    "title": "Supplier Audit Timeliness",
+    "description": "All active suppliers shall have been audited within the last two years. Suppliers with audits older than 2023 shall be flagged as non-compliant.",
+    "category": "Compliance",
+    "priority": "High"
+  },
+  "SYS-REQ-013": {
+    "id": "SYS-REQ-013",
+    "title": "Supply Chain Diversification",
+    "description": "No part category shall be sole-sourced from a supplier with risk score > 50. Single-source high-risk dependencies shall be flagged as policy violations.",
+    "category": "Compliance",
+    "priority": "Medium"
+  }
+}

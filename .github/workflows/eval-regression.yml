@@ -31,6 +31,15 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+      
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2 \
+            libcairo2-dev \
+            pkg-config \
+            python3-dev
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -59,17 +68,43 @@ jobs:
             --html=reports/report.html \
             --self-contained-html
 
+      - name: Generate traceability matrix and TRR
+        if: always()
+        run: |
+         pip install weasyprint
+         python scripts/generate_traceability.py
+
+      - name: Upload TRR and matrix
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+         name: trr-${{ github.run_id }}
+         path: |
+           docs/TRR.md
+           docs/TRR.pdf
+           reports/traceability_matrix.csv
+
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: eval-results-${{ github.run_id }}
           path: reports/
+
+      - name: Prepare pages content
+        if: always()
+        run: |
+          mkdir -p pages
+          cp reports/report.html pages/index.html
+          cp docs/TRR.md pages/TRR.md
+          [ -f docs/TRR.pdf ] && cp docs/TRR.pdf pages/TRR.pdf || true
+          cp reports/traceability_matrix.csv pages/traceability_matrix.csv
+
       - name: Deploy report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reports
+          publish_dir: ./pages
           destination_dir: .  # publishes to root of gh-pages branch
           keep_files: false
