@@ -9,8 +9,8 @@
 | Document ID | TRR-LLM-QA-001 |
 | System | LLM-QA Evaluation Framework — RAG Pipeline |
 | Stage Gate | MVP → Production |
-| Generated | 2026-05-27 08:11 UTC |
-| Commit | `0345332` |
+| Generated | 2026-05-27 08:17 UTC |
+| Commit | `247fc81` |
 | Classification | UNCLASSIFIED |
 
 ---
@@ -24,10 +24,10 @@ This Test Readiness Review documents the verification and validation status of t
 | Metric | Value |
 |---|---|
 | Total requirements | 13 |
-| Requirements verified (PASS) | 10 |
-| Requirements failed | 3 |
+| Requirements verified (PASS) | 9 |
+| Requirements failed | 4 |
 | Requirements not tested | 0 |
-| Requirements coverage | 76.9% |
+| Requirements coverage | 69.2% |
 
 ---
 
@@ -67,7 +67,7 @@ Each row maps a system requirement to its verification tests and current status.
 | Req ID | Title | Priority | Tests | Status |
 |---|---|---|---|---|
 | SYS-REQ-001 | RAG Output Faithfulness | Critical | 4 | ❌ FAIL |
-| SYS-REQ-002 | RAG Answer Relevance | Critical | 4 | ✅ PASS |
+| SYS-REQ-002 | RAG Answer Relevance | Critical | 4 | ❌ FAIL |
 | SYS-REQ-003 | Out-of-Context Refusal | Critical | 1 | ❌ FAIL |
 | SYS-REQ-004 | Prompt Regression Prevention | High | 10 | ❌ FAIL |
 | SYS-REQ-005 | BOM Schema and Business Rule Compliance | Critical | 1 | ✅ PASS |
@@ -101,14 +101,14 @@ Each row maps a system requirement to its verification tests and current status.
 
 **Description:** Generated answers shall directly address the question asked, achieving AnswerRelevancyMetric ≥ 0.75.
 
-**Category:** AI Quality | **Priority:** Critical | **Status:** PASS
+**Category:** AI Quality | **Priority:** Critical | **Status:** FAIL
 
 | Test ID | Outcome |
 |---|---|
-| `test_answer_relevance[GS-001]` | ✅ PASSED |
-| `test_answer_relevance[GS-002]` | ✅ PASSED |
-| `test_answer_relevance[GS-003]` | ✅ PASSED |
-| `test_answer_relevance[GS-004]` | ✅ PASSED |
+| `test_answer_relevance[GS-001]` | ❌ FAILED |
+| `test_answer_relevance[GS-002]` | ❌ FAILED |
+| `test_answer_relevance[GS-003]` | ❌ FAILED |
+| `test_answer_relevance[GS-004]` | ❌ FAILED |
 
 ### SYS-REQ-003 — Out-of-Context Refusal
 
@@ -128,14 +128,14 @@ Each row maps a system requirement to its verification tests and current status.
 
 | Test ID | Outcome |
 |---|---|
-| `faithfulness]` | ✅ PASSED |
-| `answer_relevancy]` | ✅ PASSED |
-| `faithfulness]` | ✅ PASSED |
-| `answer_relevancy]` | ✅ PASSED |
-| `faithfulness]` | ✅ PASSED |
-| `answer_relevancy]` | ✅ PASSED |
-| `faithfulness]` | ✅ PASSED |
-| `answer_relevancy]` | ✅ PASSED |
+| `faithfulness]` | ❌ FAILED |
+| `answer_relevancy]` | ❌ FAILED |
+| `faithfulness]` | ❌ FAILED |
+| `answer_relevancy]` | ❌ FAILED |
+| `faithfulness]` | ❌ FAILED |
+| `answer_relevancy]` | ❌ FAILED |
+| `faithfulness]` | ❌ FAILED |
+| `answer_relevancy]` | ❌ FAILED |
 | `test_aggregate_no_regression[faithfulness]` | ❌ FAILED |
 | `test_aggregate_no_regression[answer_relevancy]` | ❌ FAILED |
 
@@ -271,7 +271,7 @@ Faithfulness and answer relevance thresholds are set at 0.80 and 0.75 respective
 
 **Recommendation: NOT APPROVED — REMEDIATION REQUIRED**
 
-**3 requirement(s) failed verification.** The system is not approved to proceed until all FAIL items are resolved.
+**4 requirement(s) failed verification.** The system is not approved to proceed until all FAIL items are resolved.
 
 Remediation required before re-submission for Stage Gate review.
 
