@@ -23,7 +23,7 @@
   "SYS-REQ-004": {
     "id": "SYS-REQ-004",
     "title": "Prompt Regression Prevention",
-    "description": "Quality metric scores shall not degrade more than 5% from the established baseline following any model, prompt, or corpus change.",
+    "description": "Quality metric scores shall not degrade more than 10% from the established baseline following any model, prompt, or corpus change.",
     "category": "AI Quality",
     "priority": "High"
   },

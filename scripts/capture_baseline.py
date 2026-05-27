@@ -52,14 +52,14 @@ def _get_commit_sha() -> str:
 def _make_metrics(judge: GroqJudge) -> dict:
     # threshold=0.0 — we want raw scores, not pass/fail assertions
     return {
-        "faithfulness": FaithfulnessMetric(threshold=0.0, model=judge, include_reason=False),
-        "answer_relevancy": AnswerRelevancyMetric(threshold=0.0, model=judge, include_reason=False),
+        "faithfulness": FaithfulnessMetric(threshold=0.05, model=judge, include_reason=True),
+        "answer_relevancy": AnswerRelevancyMetric(threshold=0.05, model=judge, include_reason=True),
     }
 
 
 def main() -> None:
     print("Building RAG pipeline...")
-    pipeline = RAGPipeline(rebuild=False)
+    pipeline = RAGPipeline(rebuild=True)
     judge = GroqJudge(build_groq_llm())
     metrics = _make_metrics(judge)
 

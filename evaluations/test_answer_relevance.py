@@ -9,7 +9,7 @@ from deepeval.test_case import LLMTestCase
 
 pytestmark = pytest.mark.requirement("SYS-REQ-002")
 
-RELEVANCE_THRESHOLD = 0.75
+RELEVANCE_THRESHOLD = 0.90
 
 
 @pytest.mark.parametrize("sample", [
