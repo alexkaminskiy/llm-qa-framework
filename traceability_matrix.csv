@@ -12,3 +12,6 @@ SYS-REQ-010,Retrieval Accuracy,System Integrity,High,8,8,0,PASS
 SYS-REQ-011,BOM Value Plausibility,Data Integrity,High,1,1,0,PASS
 SYS-REQ-012,Supplier Audit Timeliness,Compliance,High,1,1,0,PASS
 SYS-REQ-013,Supply Chain Diversification,Compliance,Medium,1,1,0,PASS
+SYS-REQ-014,RBAC Enforcement,Security,Critical,25,25,0,PASS
+SYS-REQ-015,API PII Redaction,Security,Critical,8,8,0,PASS
+SYS-REQ-016,LLM PII Prevention,AI Safety,Critical,12,0,12,FAIL
