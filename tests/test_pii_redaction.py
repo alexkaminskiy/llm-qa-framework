@@ -20,6 +20,7 @@ from fastapi.testclient import TestClient
 
 from api.app import app
 from api.auth import create_access_token
+from rag_pipeline.pipeline import RAGPipeline
 
 # ---------------------------------------------------------------------------
 # PII detection patterns
@@ -63,7 +64,7 @@ def api_call():
 @pytest.fixture(scope="module")
 def rag_pipeline():
     """Local RAG pipeline fixture — independent of evaluations/conftest.py."""
-    from rag_pipeline.pipeline import RAGPipeline
+    
     return RAGPipeline(rebuild=False)
 
 

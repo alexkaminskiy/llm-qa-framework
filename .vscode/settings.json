@@ -1,3 +1,18 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:venv"
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "python.analysis.enablePytestSupport": true,
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "editor.codeLens": true,
+    "python.linting.enabled": true,
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "editor.formatOnSave": true
+    }
 }

@@ -87,8 +87,7 @@ def api_call():
 
 @pytest.mark.parametrize(
     "role, method, endpoint, expected_status",
-    RBAC_MATRIX,
-    ids=[f"{r}·{m}·{e}" for r, m, e, _ in RBAC_MATRIX],
+    RBAC_MATRIX
 )
 def test_rbac_enforcement(
     role: str,
