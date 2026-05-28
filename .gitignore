@@ -5,3 +5,5 @@ __pycache__/
 faiss_store/
 .deepeval
 reports/
+.vscode
+*.log

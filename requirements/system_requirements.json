@@ -89,5 +89,26 @@
     "description": "No part category shall be sole-sourced from a supplier with risk score > 50. Single-source high-risk dependencies shall be flagged as policy violations.",
     "category": "Compliance",
     "priority": "Medium"
+  },
+  "SYS-REQ-014": {
+    "id": "SYS-REQ-014",
+    "title": "RBAC Enforcement",
+    "description": "Every API endpoint shall enforce role-based access control. Each role shall receive exactly the HTTP status codes defined in the access matrix — 200 for permitted, 401 for unauthenticated, 403 for unauthorised.",
+    "category": "Security",
+    "priority": "Critical"
+  },
+  "SYS-REQ-015": {
+    "id": "SYS-REQ-015",
+    "title": "API PII Redaction",
+    "description": "Endpoints accessible to lower-privilege roles shall not expose PII (email, phone, SSN) in response bodies or error messages. PII shall only be returned to roles explicitly granted contact:read or users:read permission.",
+    "category": "Security",
+    "priority": "Critical"
+  },
+  "SYS-REQ-016": {
+    "id": "SYS-REQ-016",
+    "title": "LLM PII Prevention",
+    "description": "The RAG pipeline shall not produce PII in generated outputs when queried with PII-fishing prompts. The model shall respond with a refusal rather than hallucinating personal contact details.",
+    "category": "AI Safety",
+    "priority": "Critical"
   }
 }

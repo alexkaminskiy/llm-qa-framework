@@ -1,6 +1,6 @@
 # llm-qa-framework
 
-An automated LLM evaluation framework for validating RAG pipelines against Gold Standard datasets, with data quality validation, prompt regression detection, and formal V&V traceability. Built as a practical implementation of AI/LLM quality assurance patterns used in defense and regulated environments.
+An automated LLM evaluation framework for validating RAG pipelines against Gold Standard datasets, with data quality validation, prompt regression detection, formal V&V traceability, and security API testing. Built as a practical implementation of AI/LLM quality assurance patterns used in defense and regulated environments.
 
 ## What this does
 
@@ -12,6 +12,8 @@ An automated LLM evaluation framework for validating RAG pipelines against Gold 
 | Data integrity | BOM schema, supplier validity, SQL business rules | Great Expectations + SQLite |
 | Vector store | Index dimensions, retrieval accuracy, corpus integrity | FAISS + pytest |
 | Traceability | Every test mapped to a system requirement | pytest markers + TRR |
+| RBAC enforcement | Role-based access control across all API endpoints | FastAPI + pytest |
+| PII redaction | No PII in API responses or LLM outputs | Regex patterns + RAG pipeline |
 
 ## Project structure
 
@@ -30,9 +32,16 @@ llm-qa-framework/
 │   ├── test_prompt_regression.py    # Baseline delta tests [SYS-REQ-004]
 │   └── test_ragas_metrics.py        # RAGAS context precision + recall
 │
-├── tests/                           # Data + infrastructure tests
+├── tests/                           # Data, infrastructure, and security tests
 │   ├── test_data_validation.py      # GE checkpoints + SQL validation
-│   └── test_vector_store.py         # FAISS index integrity + retrieval
+│   ├── test_vector_store.py         # FAISS index integrity + retrieval
+│   ├── test_rbac.py                 # Parameterized RBAC matrix [SYS-REQ-014]
+│   └── test_pii_redaction.py        # PII detection: API + LLM [SYS-REQ-015/016]
+│
+├── api/                             # Mock FastAPI application (system under test)
+│   ├── __init__.py
+│   ├── app.py                       # Endpoints with RBAC enforcement
+│   └── auth.py                      # JWT tokens + role permissions
 │
 ├── rag_pipeline/
 │   ├── __init__.py
@@ -54,7 +63,7 @@ llm-qa-framework/
 │   └── baseline.json                # Committed evaluation baseline
 │
 ├── requirements/
-│   └── system_requirements.json     # System requirements registry (SYS-REQ-001..013)
+│   └── system_requirements.json     # Requirements registry (SYS-REQ-001..016)
 │
 ├── docs/
 │   ├── TRR.md                       # Test Readiness Review (generated)
@@ -82,6 +91,7 @@ llm-qa-framework/
 | LLM + Judge | Groq llama-3.3-70b-versatile (free tier) |
 | Data validation | Great Expectations 0.18.15 |
 | SQL layer | SQLite + sqlite3 (stdlib) |
+| API under test | FastAPI 0.111 + python-jose JWT |
 | PDF generation | xhtml2pdf (pure Python) |
 | Test runner | pytest 8.3 |
 | CI | GitHub Actions |
@@ -101,7 +111,7 @@ source .venv/bin/activate        # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env` and fill in your key:
+Copy `.env.example` to `.env`:
 
 ```env
 GROQ_API_KEY=your_key_here
@@ -113,17 +123,15 @@ Get a free Groq API key at https://console.groq.com — no credit card required.
 ## Running the tests
 
 ```bash
-# Full suite (LLM eval + data validation + vector store)
+# Full suite
 pytest -v
 
-# LLM evaluation only (~2 min, requires Groq API key)
-pytest evaluations/ -v
-
-# Data validation + vector store only (~30 sec, no API calls)
-pytest tests/ -v
-
-# Single metric
-pytest evaluations/test_rag_faithfulness.py -v
+# By phase
+pytest evaluations/ -v                          # Phase 1+2: LLM evaluation
+pytest tests/test_data_validation.py -v         # Phase 3: data validation
+pytest tests/test_vector_store.py -v            # Phase 3: vector store
+pytest tests/test_rbac.py -v                    # Phase 5: RBAC (fast, no API calls)
+pytest tests/test_pii_redaction.py -v           # Phase 5: PII redaction
 
 # With HTML report
 pytest -v --html=reports/report.html --self-contained-html
@@ -133,135 +141,152 @@ pytest -v --html=reports/report.html --self-contained-html
 
 Detects silent quality drift by comparing current scores against a committed baseline.
 
-### Capture a new baseline
-
 ```bash
+# Capture a new baseline
 python scripts/capture_baseline.py
 ```
 
-Writes scores to `baselines/baseline.json` tagged with model version, prompt version, and commit SHA. Commit the result.
+Two levels of detection: per-sample (catches regressions on specific inputs) and aggregate (catches distributed drift).
 
-### How regression detection works
+Update baseline via CI: Actions → LLM Eval Regression → Run workflow → `update_baseline=true`
 
-```
-baseline.json  <-- established reference (committed to repo)
-      |
-      |  delta = baseline_score - current_score
-      |  if delta > 0.05 -> REGRESSION DETECTED
-      v
-test_prompt_regression.py  <-- runs on every push
-```
-
-Two levels: per-sample (catches regressions on specific inputs) and aggregate (catches distributed drift).
-
-### Update baseline via CI
-
-Actions -> LLM Eval Regression -> Run workflow -> update_baseline=true
-
-Never update the baseline to silence a regression. Fix the root cause first.
+> Never update the baseline to silence a regression. Fix the root cause first.
 
 ## Phase 3 — Data Validation
 
-Three-layer validation for the defense supply chain dataset.
+**Layer 1: CSV / pandas** — schema, format, completeness, business rules via Great Expectations.
 
-**Layer 1: CSV / pandas** — schema, format, completeness, business rules via Great Expectations checkpoints.
-
-**Layer 2: SQL** — referential integrity, aggregate business rules, and compliance checks:
+**Layer 2: SQL** — referential integrity and compliance checks via SQLite:
 - BOM supplier IDs must exist in the supplier register
 - No category sole-sourced from a high-risk supplier
 - SECRET parts must not come from non-US suppliers (ITAR)
 
-**Layer 3: Vector store** — FAISS index dimensionality, vector count, and retrieval accuracy for known queries.
-
-```bash
-pytest tests/ -v
-```
+**Layer 3: Vector store** — FAISS index dimensionality, vector count, retrieval accuracy.
 
 ## Phase 4 — V&V Traceability
 
-Every test maps to a system requirement. The traceability matrix and TRR are generated automatically after each run.
-
-### 13 system requirements across 4 categories
-
-- AI quality: SYS-REQ-001 to 004
-- Data integrity: SYS-REQ-005 to 007, 011
-- Compliance: SYS-REQ-008, 012, 013
-- System integrity: SYS-REQ-009 to 010
-
-### Generate TRR and traceability matrix
+16 system requirements across 5 categories. Every test maps to at least one requirement via `@pytest.mark.requirement("SYS-REQ-XXX")`.
 
 ```bash
-# Full run (fresh outcomes)
-pytest -v --junit-xml=reports/results.xml
-python scripts/generate_traceability.py
-
-# Without re-running LLM tests
+# Generate TRR — fast path (uses last XML, no LLM re-run)
 pytest tests/ -v --junit-xml=reports/results.xml
 python scripts/patch_traceability.py
 python scripts/generate_traceability.py
 ```
 
-Outputs:
-- `reports/traceability_matrix.csv` — machine-readable requirement coverage
-- `docs/TRR.md` — Test Readiness Review document
-- `docs/TRR.pdf` — PDF for Stage Gate submission
+Outputs: `reports/traceability_matrix.csv`, `docs/TRR.md`, `docs/TRR.pdf`
+
+## Phase 5 — Security API Testing
+
+### RBAC enforcement
+
+The mock FastAPI application implements four roles with distinct permission sets:
+
+| Role | Permissions |
+|---|---|
+| `guest` | None — 401 on all protected endpoints |
+| `analyst` | BOM read, supplier list read |
+| `engineer` | + risk scores, classified specs |
+| `admin` | + contact PII, user management |
+
+25 parameterized test cases cover every (role, endpoint) combination. Any 200 where 403 is expected is a privilege escalation. Any 403 where 200 is expected is a legitimate user being locked out.
+
+```bash
+pytest tests/test_rbac.py -v   # runs in-process, no network, ~3 seconds
+```
+
+### PII redaction
+
+Two surfaces tested:
+
+**API layer** — endpoints gated behind `contact:read` and `users:read` permissions must return 403 to lower-privilege roles, and the 403 error body must contain no PII (a common leakage vector).
+
+**LLM layer** — the RAG pipeline is queried with six PII-fishing prompts. The corpus contains no personal data, so any PII in the output is hallucinated. Both the absence of PII patterns and the presence of a refusal phrase are asserted.
+
+```bash
+pytest tests/test_pii_redaction.py::TestAPIPIIRedaction -v   # fast
+pytest tests/test_pii_redaction.py::TestLLMPIIPrevention -v  # uses Groq
+```
+
+### PII patterns detected
+
+| Type | Pattern |
+|---|---|
+| Email | `name@domain.tld` |
+| SSN | `NNN-NN-NNNN` |
+| US phone | `(NNN) NNN-NNNN` or `NNN-NNN-NNNN` |
+| International phone | `+NN NNN NNNN` |
+| Credit card | `NNNN NNNN NNNN NNNN` |
 
 ## CI/CD
 
-Runs on every push to main, every pull request, and nightly at 06:00 UTC.
+Runs on every push to `develop`, every PR, and nightly at 06:00 UTC.
 
-Pipeline steps:
-1. Run full evaluation suite
-2. Compare results against baseline (regression check)
-3. Generate traceability matrix and TRR
-4. Publish HTML report to GitHub Pages
+1. Runs full evaluation suite (LLM + data + security)
+2. Compares results against baseline (regression check)
+3. Generates traceability matrix and TRR
+4. Publishes HTML report to GitHub Pages
 
 **Live report:** https://alexkaminskiy.github.io/llm-qa-framework
 
-Required secret: GROQ_API_KEY -> Settings -> Secrets -> Actions
+Required secret: `GROQ_API_KEY` → Settings → Secrets → Actions
 
 | workflow_dispatch input | Effect |
 |---|---|
-| update_baseline=true | Captures fresh baseline, commits baseline.json |
+| `update_baseline=true` | Captures fresh baseline, commits baseline.json |
 
-## Gold Standard dataset
+## System requirements coverage
 
-`datasets/gold_standard.json` — ground truth Q&A pairs. Tags control metric routing:
-
-| Tag | Applied metrics |
-|---|---|
-| factual, defense | FaithfulnessMetric + AnswerRelevancyMetric |
-| out-of-context | Refusal test only |
-| adversarial | Hallucination trap |
+| ID | Title | Category | Covered by |
+|---|---|---|---|
+| SYS-REQ-001 | RAG Output Faithfulness | AI Quality | test_rag_faithfulness |
+| SYS-REQ-002 | RAG Answer Relevance | AI Quality | test_answer_relevance |
+| SYS-REQ-003 | Out-of-Context Refusal | AI Safety | test_rag_hallucination |
+| SYS-REQ-004 | Prompt Regression Prevention | AI Quality | test_prompt_regression |
+| SYS-REQ-005 | BOM Schema Compliance | Data Integrity | test_data_validation |
+| SYS-REQ-006 | Supplier Data Validity | Data Integrity | test_data_validation |
+| SYS-REQ-007 | Referential Integrity | Data Integrity | test_data_validation |
+| SYS-REQ-008 | ITAR Compliance | Compliance | test_data_validation |
+| SYS-REQ-009 | Vector Index Integrity | System Integrity | test_vector_store |
+| SYS-REQ-010 | Retrieval Accuracy | System Integrity | test_vector_store |
+| SYS-REQ-011 | BOM Value Plausibility | Data Integrity | test_data_validation |
+| SYS-REQ-012 | Supplier Audit Timeliness | Compliance | test_data_validation |
+| SYS-REQ-013 | Supply Chain Diversification | Compliance | test_data_validation |
+| SYS-REQ-014 | RBAC Enforcement | Security | test_rbac |
+| SYS-REQ-015 | API PII Redaction | Security | test_pii_redaction |
+| SYS-REQ-016 | LLM PII Prevention | AI Safety | test_pii_redaction |
 
 ## Design decisions
 
 **Why FAISS over ChromaDB/LanceDB?**
-Both were evaluated. ChromaDB has native build issues on Windows. LanceDB has an unstable API surface across minor versions — `lancedb.rerankers` missing on Linux 0.3.x, `list_tables()` API split across versions. FAISS is pure Python/numpy, installs cleanly everywhere.
+Both were evaluated. ChromaDB has native build issues on Windows. LanceDB has an unstable API across minor versions. FAISS is pure Python/numpy, installs cleanly everywhere.
 
 **Why Groq instead of OpenAI?**
-Free tier, no credit card, ~500 req/min. The `DeepEvalBaseLLM` interface means swapping judges is a one-line config change.
+Free tier, no credit card. The `DeepEvalBaseLLM` interface means swapping judges is a one-line config change.
 
 **Why not HallucinationMetric for in-context tests?**
-It evaluates each chunk independently. With k=3, 2 of 3 chunks are irrelevant to any question — producing structural false positives. FaithfulnessMetric evaluates the combined context, which is correct for RAG.
+It evaluates each chunk independently. With k=3, structural false positives occur. FaithfulnessMetric evaluates combined context — correct for RAG.
 
-**Why sqlite3 instead of SQLAlchemy for pandas integration?**
-SQLAlchemy 2.x removed DBAPI2 cursor compatibility from connection objects, which pd.read_sql() requires. sqlite3 is stdlib and natively DBAPI2-compliant.
+**Why sqlite3 instead of SQLAlchemy for pandas?**
+SQLAlchemy 2.x removed DBAPI2 cursor compatibility. sqlite3 is stdlib and natively DBAPI2-compliant.
 
 **Why xhtml2pdf instead of WeasyPrint?**
-WeasyPrint requires GTK native libraries unavailable on Windows without a ~500MB system install. xhtml2pdf is pure Python with no native dependencies.
+WeasyPrint requires GTK native libraries unavailable on Windows without a ~500MB install. xhtml2pdf is pure Python.
 
-**Why commit baseline.json to the repo?**
-A baseline update in a PR is a visible signal that quality characteristics changed. Git history shows quality evolution. Rolling back is a git revert.
+**Why a mock FastAPI for RBAC testing?**
+Testing RBAC against a real SAP/Ariba system requires credentials, network access, and test data isolation. A mock API is self-contained, deterministic, fast, and demonstrates the same test patterns that apply to any JWT-protected REST API.
+
+**Why assert on 403 error bodies for PII?**
+Error messages are a common overlooked leakage vector. A well-designed RBAC system returns a generic 403 with no data about the protected resource. Testing the error body explicitly catches cases where the API echoes back request parameters or resource metadata in the error response.
 
 ## Extending the framework
+
+**Add an API endpoint:** add it to `api/app.py`, add the corresponding rows to `RBAC_MATRIX` in `test_rbac.py`.
+
+**Add a PII pattern:** add the regex to `_PII_PATTERNS` in `test_pii_redaction.py` — it will be applied to all existing PII tests automatically.
 
 **Add a document to the corpus:** edit `DOCUMENTS` in `rag_pipeline/pipeline.py`, delete `faiss_store/`, re-run tests.
 
 **Add a Gold Standard sample:** append to `datasets/gold_standard.json` — parametrize picks it up automatically.
 
 **Add a system requirement:** add to `requirements/system_requirements.json`, add `@pytest.mark.requirement("SYS-REQ-NEW")` to relevant tests, regenerate TRR.
-
-**Add a metric:** create a test file in `evaluations/`, use `judge` and `rag_pipeline` fixtures from `evaluations/conftest.py`.
-
-**Add a data validation rule:** add an expectation to `data_validation/suites.py` or a new SQL test in `tests/test_data_validation.py`.
