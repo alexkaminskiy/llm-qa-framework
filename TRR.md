@@ -9,8 +9,8 @@
 | Document ID | TRR-LLM-QA-001 |
 | System | LLM-QA Evaluation Framework — RAG Pipeline |
 | Stage Gate | MVP → Production |
-| Generated | 2026-05-28 12:11 UTC |
-| Commit | `2c79ec8` |
+| Generated | 2026-05-28 12:29 UTC |
+| Commit | `c201e4a` |
 | Classification | UNCLASSIFIED |
 
 ---
