@@ -1,17 +1,17 @@
 Requirement ID,Title,Category,Priority,Test Count,Passed,Failed,Status
-SYS-REQ-001,RAG Output Faithfulness,AI Quality,Critical,4,4,0,PASS
-SYS-REQ-002,RAG Answer Relevance,AI Quality,Critical,4,4,0,PASS
-SYS-REQ-003,Out-of-Context Refusal,AI Safety,Critical,1,1,0,PASS
-SYS-REQ-004,Prompt Regression Prevention,AI Quality,High,10,10,0,PASS
+SYS-REQ-001,RAG Output Faithfulness,AI Quality,Critical,0,0,0,NOT TESTED
+SYS-REQ-002,RAG Answer Relevance,AI Quality,Critical,0,0,0,NOT TESTED
+SYS-REQ-003,Out-of-Context Refusal,AI Safety,Critical,0,0,0,NOT TESTED
+SYS-REQ-004,Prompt Regression Prevention,AI Quality,High,0,0,0,NOT TESTED
 SYS-REQ-005,BOM Schema and Business Rule Compliance,Data Integrity,Critical,1,1,0,PASS
 SYS-REQ-006,Supplier Data Validity,Data Integrity,High,1,1,0,PASS
 SYS-REQ-007,BOM–Supplier Referential Integrity,Data Integrity,Critical,1,1,0,PASS
 SYS-REQ-008,ITAR Export Control Compliance,Compliance,Critical,1,1,0,PASS
-SYS-REQ-009,Vector Index Dimensional Integrity,System Integrity,Critical,8,8,0,PASS
-SYS-REQ-010,Retrieval Accuracy,System Integrity,High,8,8,0,PASS
+SYS-REQ-009,Vector Index Dimensional Integrity,System Integrity,Critical,1,0,1,FAIL
+SYS-REQ-010,Retrieval Accuracy,System Integrity,High,1,0,1,FAIL
 SYS-REQ-011,BOM Value Plausibility,Data Integrity,High,1,1,0,PASS
 SYS-REQ-012,Supplier Audit Timeliness,Compliance,High,1,1,0,PASS
 SYS-REQ-013,Supply Chain Diversification,Compliance,Medium,1,1,0,PASS
 SYS-REQ-014,RBAC Enforcement,Security,Critical,25,25,0,PASS
 SYS-REQ-015,API PII Redaction,Security,Critical,8,8,0,PASS
-SYS-REQ-016,LLM PII Prevention,AI Safety,Critical,12,12,0,PASS
+SYS-REQ-016,LLM PII Prevention,AI Safety,Critical,0,0,0,NOT TESTED
