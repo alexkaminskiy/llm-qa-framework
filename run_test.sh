@@ -1,0 +1,1 @@
+pytest -n auto --maxfail=1 --disable-warnings -q tests/
